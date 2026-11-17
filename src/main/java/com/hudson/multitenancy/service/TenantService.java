@@ -4,6 +4,8 @@ import static jakarta.transaction.Transactional.TxType.REQUIRES_NEW;
 
 import com.hudson.multitenancy.config.FlywayMigrationInitializer;
 import com.hudson.multitenancy.config.RoutingDataSource;
+import com.hudson.multitenancy.config.TenantNames;
+import com.hudson.multitenancy.exception.DuplicateTenantException;
 import com.hudson.multitenancy.model.TenantEntity;
 import com.hudson.multitenancy.repository.TenantEntityRepository;
 import jakarta.persistence.EntityManager;
@@ -36,8 +38,13 @@ public class TenantService {
 
     @Transactional
     public TenantEntity createTenant(final String tenantName) {
-        String tenantNameInsert = tenantName.trim();
-        String tenantSchemaName = String.format("multitenancy_%s", tenantNameInsert);
+        // whitelist validation: the name is used in DDL and in the JDBC URL
+        String tenantNameInsert = TenantNames.requireValidTenantName(tenantName == null ? null : tenantName.trim());
+        String tenantSchemaName = TenantNames.schemaFor(tenantNameInsert);
+
+        if (tenantEntityRepository.existsByTenantName(tenantNameInsert)) {
+            throw new DuplicateTenantException("Tenant already exists");
+        }
 
         TenantEntity tenantEntity = new TenantEntity();
         tenantEntity.setTenantName(tenantNameInsert);
@@ -54,6 +61,6 @@ public class TenantService {
 
     @Transactional(REQUIRES_NEW)
     public void createTenantSchema(final String tenantSchemaName) {
-        entityManager.createNativeQuery("CREATE SCHEMA IF NOT EXISTS " + tenantSchemaName).executeUpdate();
+        entityManager.createNativeQuery(TenantNames.createSchemaSql(tenantSchemaName)).executeUpdate();
     }
 }

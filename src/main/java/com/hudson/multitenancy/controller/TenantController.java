@@ -20,7 +20,7 @@ public class TenantController {
     }
 
     @PostMapping(value = "/tenant")
-    public TenantEntity createTenant(@RequestBody String tenantName){
-        return tenantService.createTenant(tenantName);
+    public TenantEntity createTenant(@RequestBody CreateTenantRequest request){
+        return tenantService.createTenant(request.tenantName());
     }
 }
