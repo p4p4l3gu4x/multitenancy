@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Architecture PoC for **schema-per-tenant multitenancy** with Spring Boot 3.3 (Java 20), Hibernate 6, Flyway and MySQL.
+Architecture PoC for **schema-per-tenant multitenancy** with Spring Boot 4.1 (Java 25), Hibernate 7, Flyway and MySQL.
 
 ## Commands
 
