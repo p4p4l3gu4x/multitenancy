@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface TenantEntityRepository extends JpaRepository<TenantEntity, Long> {
 
+    boolean existsByTenantName(String tenantName);
+
 }
